@@ -93,6 +93,7 @@ class MyAppState extends State<MyApp> {
                       child: Row(
                         children: [
                           Expanded(
+
                             child: ListTile(
                               contentPadding: const EdgeInsets.all(9),
                               title: Text(
