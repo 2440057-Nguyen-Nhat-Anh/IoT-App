@@ -49,23 +49,35 @@ class MyAppState extends State<MyApp> {
             children: [
               Center(
                 child: ElevatedButton.icon(
-                  onPressed: CreateCode, 
+                  onPressed: CreateCode,
                   icon: Icon(Icons.add),
                   label: Text(
                     'Click to generate',
-                    style: TextStyle(
-                      fontSize: 20,
-                      color: Colors.red
-                    ),
+                    style: TextStyle(fontSize: 20, color: Colors.red),
                   ),
                 ),
               ),
               if (code.isNotEmpty)
-              const Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Code',
-                  style: TextStyle(fontSize: 18),
+                const Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text('Code', style: TextStyle(fontSize: 18)),
+                ),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: code.length,
+                  itemBuilder: (context, index) {
+                    return Card(
+                      margin: EdgeInsets.all(12),
+                      child: Row(
+                        children: [
+                          Expanded(child: Text(
+                            code[index],
+                            style: TextStyle(fontSize: 18, color: Colors.indigo),
+                          ))
+                        ],
+                      ),
+                    );
+                  },
                 ),
               ),
             ],
