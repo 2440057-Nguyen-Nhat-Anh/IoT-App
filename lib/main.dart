@@ -20,7 +20,6 @@ class MyAppState extends State<MyApp> {
 
   final String esp32Ip = '192.168.4.1';
 
-  // Generates a random alphanumeric string of a given length.
   String randomString(int length) {
     const String _chars =
         'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -33,7 +32,6 @@ class MyAppState extends State<MyApp> {
     );
   }
 
-  // Sends a new code to the ESP32 via an HTTP POST request.
   Future<void> _sendCodeToESP32(String newCode) async {
     setState(() {
       _statusMessage = 'Sending code "$newCode"...';
@@ -61,7 +59,6 @@ class MyAppState extends State<MyApp> {
     }
   }
 
-  // Fetches data and the MAC address from the ESP32 via an HTTP GET request.
   Future<void> _getDataAndMacFromESP32() async {
     setState(() {
       _statusMessage = 'Fetching data and MAC from ESP32...';
@@ -71,24 +68,22 @@ class MyAppState extends State<MyApp> {
 
       if (response.statusCode == 200) {
         String fullResponse = response.body;
-        List<String> parts = fullResponse.split(', ESP32 MAC: '); // Split by the specific MAC prefix
+        List<String> parts = fullResponse.split(', ESP32 MAC: ');
 
         String dataPart = 'No data yet';
         String macPart = 'No MAC available';
 
         if (parts.isNotEmpty) {
-          // The first part should be "Data: <actual_data>"
           dataPart = parts[0];
-          // Remove the "Data: " prefix if it exists
         }
         if (parts.length > 1) {
-          // The second part should be the MAC address
           macPart = parts[1];
         }
 
         setState(() {
           _esp32MacAddress = macPart;
-          _statusMessage = 'Data and MAC fetched successfully. \n$dataPart, MAC Address: $macPart';
+          _statusMessage =
+              'Data and MAC fetched successfully. \n$dataPart, MAC Address: $macPart';
         });
       } else {
         setState(() {
@@ -103,7 +98,6 @@ class MyAppState extends State<MyApp> {
     }
   }
 
-  // Creates a new random code and sends it to the ESP32.
   void createCode() {
     setState(() {
       String newCode = randomString(6);
@@ -114,7 +108,6 @@ class MyAppState extends State<MyApp> {
     print("Create code: ${codes.last}");
   }
 
-  // Removes a code from the list based on its index.
   void removeCode(int index) {
     setState(() {
       codes.removeAt(index);
@@ -146,7 +139,7 @@ class MyAppState extends State<MyApp> {
                   onPressed: createCode,
                   icon: const Icon(Icons.add),
                   label: const Text(
-                    'Create New Code (and send to ESP32)',
+                    'Create New Code',
                     style: TextStyle(fontSize: 16),
                   ),
                   style: ElevatedButton.styleFrom(
@@ -166,7 +159,7 @@ class MyAppState extends State<MyApp> {
               ElevatedButton.icon(
                 onPressed: _getDataAndMacFromESP32,
                 icon: const Icon(Icons.refresh),
-                label: const Text('Fetch Data & ESP32 MAC'),
+                label: const Text('Fetch Data'),
                 style: ElevatedButton.styleFrom(
                   foregroundColor:
                       Theme.of(context).colorScheme.onSecondaryContainer,
