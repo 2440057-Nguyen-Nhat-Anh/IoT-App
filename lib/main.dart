@@ -25,7 +25,7 @@ class MyAppState extends State<MyApp> {
     return String.fromCharCodes(
       Iterable.generate(
         length,
-        (_) => _chars.codeUnitAt(rnd.nextInt(_chars.length)),
+            (_) => _chars.codeUnitAt(rnd.nextInt(_chars.length)),
       ),
     );
   }
@@ -35,6 +35,13 @@ class MyAppState extends State<MyApp> {
       code.add(randomString(6));
     });
     print("Create code: ${code.last}");
+  }
+
+  void RemoveCode(int index) {
+    setState(() {
+      code.removeAt(index);
+    });
+    print("Removed the code");
   }
 
   @override
@@ -53,7 +60,7 @@ class MyAppState extends State<MyApp> {
                   icon: Icon(Icons.add),
                   label: Text(
                     'Click to generate',
-                    style: TextStyle(fontSize: 20, color: Colors.red),
+                    style: TextStyle(fontSize: 20, color: Colors.blue),
                   ),
                 ),
               ),
@@ -70,10 +77,22 @@ class MyAppState extends State<MyApp> {
                       margin: EdgeInsets.all(12),
                       child: Row(
                         children: [
-                          Expanded(child: Text(
-                            code[index],
-                            style: TextStyle(fontSize: 18, color: Colors.indigo),
-                          ))
+                          Expanded(
+                            child: Padding(
+                              padding: EdgeInsets.all(9),
+                              child: Text(
+                                code[index],
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.indigo,
+                                ),
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            onPressed: () => RemoveCode(index),
+                            icon: Icon(Icons.delete, color: Colors.red),
+                          ),
                         ],
                       ),
                     );
