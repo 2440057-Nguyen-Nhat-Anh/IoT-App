@@ -37,6 +37,13 @@ class MyAppState extends State<MyApp> {
     print("Create code: ${code.last}");
   }
 
+  void RemoveCode(int index) {
+    setState(() {
+      code.removeAt(index);
+    });
+    print("Removed the code");
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -53,7 +60,7 @@ class MyAppState extends State<MyApp> {
                   icon: Icon(Icons.add),
                   label: Text(
                     'Click to generate',
-                    style: TextStyle(fontSize: 20, color: Colors.red),
+                    style: TextStyle(fontSize: 20, color: Colors.blue),
                   ),
                 ),
               ),
@@ -70,10 +77,22 @@ class MyAppState extends State<MyApp> {
                       margin: EdgeInsets.all(12),
                       child: Row(
                         children: [
-                          Expanded(child: Text(
-                            code[index],
-                            style: TextStyle(fontSize: 18, color: Colors.indigo),
-                          ))
+                          Expanded(
+                            child: Padding(
+                              padding: EdgeInsets.all(9),
+                              child: Text(
+                                code[index],
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.indigo,
+                                ),
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            onPressed: () => RemoveCode(index),
+                            icon: Icon(Icons.delete, color: Colors.red),
+                          ),
                         ],
                       ),
                     );
