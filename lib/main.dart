@@ -15,8 +15,8 @@ class MyApp extends StatefulWidget {
 
 class MyAppState extends State<MyApp> {
   String currentCode = "";
-  String _esp32MacAddress = 'Waiting';
-  String _statusMessage = '';
+  String esp32MacAddress = 'Waiting';
+  String statusMessage = '';
 
   final String esp32Ip = '192.168.4.1';
 
@@ -34,7 +34,7 @@ class MyAppState extends State<MyApp> {
 
   Future<void> sendCodeToESP32(String newCode) async {
     setState(() {
-      _statusMessage = 'Sending code $newCode';
+      statusMessage = 'Sending code $newCode';
     });
     try {
       final response = await http.post(
@@ -44,31 +44,31 @@ class MyAppState extends State<MyApp> {
 
       if (response.statusCode == 200) {
         setState(() {
-          _statusMessage = 'Code sent successfully: \n${response.body}';
+          statusMessage = 'Code sent successfully: \n${response.body}';
         });
       } else {
         setState(() {
-          _statusMessage =
+          statusMessage =
               'Error sending code: ${response.statusCode} - ${response.body}';
         });
       }
     } catch (e) {
       setState(() {
-        _statusMessage = 'ESP32 connection error: $e';
+        statusMessage = 'ESP32 connection error: $e';
       });
     }
   }
 
   Future<void> _getDataAndMacFromESP32() async {
     setState(() {
-      _statusMessage = 'Fetching data and MAC from ESP32';
+      statusMessage = 'Fetching data and MAC from ESP32';
     });
     try {
       final response = await http.get(Uri.parse('http://$esp32Ip/getdata'));
 
       if (response.statusCode == 200) {
         String fullResponse = response.body;
-        List<String> parts = fullResponse.split(', ESP32 MAC: ');
+        List<String> parts = fullResponse.split(',ESP32 MAC: ');
 
         String dataPart = 'No data yet';
         String macPart = 'No MAC available';
@@ -81,19 +81,23 @@ class MyAppState extends State<MyApp> {
         }
 
         setState(() {
-          _esp32MacAddress = macPart;
-          _statusMessage =
-              'Data and MAC fetched successfully. \n$dataPart, MAC Address: $macPart';
+          if (parts.length > 1) {
+            esp32MacAddress = macPart;
+            statusMessage =
+                'Fetched successfully. \n$dataPart\nMAC Address: $macPart';
+          } else {
+            statusMessage = 'Fetched successfully\n $dataPart';
+          }
         });
       } else {
         setState(() {
-          _statusMessage =
+          statusMessage =
               'Error fetching data: ${response.statusCode} - ${response.body}';
         });
       }
     } catch (e) {
       setState(() {
-        _statusMessage = 'Connection error: $e';
+        statusMessage = 'Connection error: $e';
       });
     }
   }
@@ -111,6 +115,7 @@ class MyAppState extends State<MyApp> {
   void removeCode() async {
     setState(() {
       currentCode = "";
+      esp32MacAddress = "";
     });
     await sendCodeToESP32("");
     print("Removed the code");
@@ -175,12 +180,12 @@ class MyAppState extends State<MyApp> {
               ),
               const SizedBox(height: 10),
               Text(
-                'ESP32 MAC: $_esp32MacAddress',
+                'ESP32 MAC: $esp32MacAddress',
                 style: const TextStyle(fontSize: 16, color: Colors.indigo),
               ),
               const SizedBox(height: 10),
               Text(
-                'Status: $_statusMessage',
+                'Status: $statusMessage',
                 style: const TextStyle(
                   fontSize: 14,
                   fontStyle: FontStyle.italic,
