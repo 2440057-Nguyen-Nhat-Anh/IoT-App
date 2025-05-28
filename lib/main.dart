@@ -14,8 +14,8 @@ class MyApp extends StatefulWidget {
 }
 
 class MyAppState extends State<MyApp> {
-  final List<String> codes = [];
-  String _esp32MacAddress = 'Waiting...';
+  String currentCode = "";
+  String _esp32MacAddress = 'Waiting';
   String _statusMessage = '';
 
   final String esp32Ip = '192.168.4.1';
@@ -32,9 +32,9 @@ class MyAppState extends State<MyApp> {
     );
   }
 
-  Future<void> _sendCodeToESP32(String newCode) async {
+  Future<void> sendCodeToESP32(String newCode) async {
     setState(() {
-      _statusMessage = 'Sending code "$newCode"...';
+      _statusMessage = 'Sending code $newCode';
     });
     try {
       final response = await http.post(
@@ -44,7 +44,7 @@ class MyAppState extends State<MyApp> {
 
       if (response.statusCode == 200) {
         setState(() {
-          _statusMessage = 'Code sent successfully: ${response.body}';
+          _statusMessage = 'Code sent successfully: \n${response.body}';
         });
       } else {
         setState(() {
@@ -61,7 +61,7 @@ class MyAppState extends State<MyApp> {
 
   Future<void> _getDataAndMacFromESP32() async {
     setState(() {
-      _statusMessage = 'Fetching data and MAC from ESP32...';
+      _statusMessage = 'Fetching data and MAC from ESP32';
     });
     try {
       final response = await http.get(Uri.parse('http://$esp32Ip/getdata'));
@@ -101,17 +101,18 @@ class MyAppState extends State<MyApp> {
   void createCode() {
     setState(() {
       String newCode = randomString(6);
-      codes.add(newCode);
+      currentCode = newCode;
 
-      _sendCodeToESP32(newCode);
+      sendCodeToESP32(newCode);
     });
-    print("Create code: ${codes.last}");
+    print("Create code: ${currentCode}");
   }
 
-  void removeCode(int index) {
+  void removeCode() async {
     setState(() {
-      codes.removeAt(index);
+      currentCode = "";
     });
+    await sendCodeToESP32("");
     print("Removed the code");
   }
 
@@ -134,24 +135,22 @@ class MyAppState extends State<MyApp> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Center(
-                child: ElevatedButton.icon(
-                  onPressed: createCode,
-                  icon: const Icon(Icons.add),
-                  label: const Text(
-                    'Create New Code',
-                    style: TextStyle(fontSize: 16),
+              ElevatedButton.icon(
+                onPressed: createCode,
+                icon: const Icon(Icons.add),
+                label: const Text(
+                  'Create New Code',
+                  style: TextStyle(fontSize: 16),
+                ),
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
                   ),
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
                   ),
                 ),
               ),
@@ -188,47 +187,41 @@ class MyAppState extends State<MyApp> {
                 ),
               ),
               const Divider(height: 30, thickness: 1),
-              if (codes.isNotEmpty)
-                const Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'List of Generated Codes',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: codes.length,
-                  itemBuilder: (context, index) {
-                    return Card(
-                      margin: const EdgeInsets.symmetric(
-                        vertical: 8,
-                        horizontal: 0,
-                      ),
+              if (currentCode != "")
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Current Generated Code',
+                      style: TextStyle(fontSize: 18),
+                    ),
+                    const SizedBox(height: 0),
+                    Card(
+                      margin: EdgeInsets.symmetric(vertical: 8, horizontal: 0),
                       child: Row(
                         children: [
                           Expanded(
                             child: ListTile(
-                              contentPadding: const EdgeInsets.all(9),
+                              contentPadding: EdgeInsets.all(9),
                               title: Text(
-                                codes[index],
-                                style: const TextStyle(
-                                  fontSize: 18,
+                                currentCode,
+                                style: TextStyle(
+                                  fontSize: 20,
                                   color: Colors.indigo,
                                 ),
                               ),
                             ),
                           ),
                           IconButton(
-                            onPressed: () => removeCode(index),
-                            icon: const Icon(Icons.delete, color: Colors.red),
+                            onPressed: removeCode,
+                            icon: Icon(Icons.delete),
+                            color: Colors.red,
                           ),
                         ],
                       ),
-                    );
-                  },
+                    ),
+                  ],
                 ),
-              ),
             ],
           ),
         ),
